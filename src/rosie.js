@@ -276,26 +276,49 @@ Factory.prototype = {
     return meta.builder.apply(this, args);
   },
 
-  /**
-   * Builds objects by getting values for all attributes and optionally passing
-   * the result to a constructor function.
+/**
+   * Build objects by getting values for all attributes and passing
+   * the result to a constructor function using the new operator.
    *
    * @param {object} attributes
    * @param {object} options
-   * @return {*}
+   * @return {object}
    */
   build: function(attributes, options) {
-    var result = this.attributes(attributes, options);
+    var attrs = this.attributes(attributes, options);
     var retval = null;
 
     if (this.construct) {
-      if (typeof this.construct.create === 'function') {
-        retval = this.construct.create(result);
-      } else {
-        retval = new this.construct(result);
-      }
+      retval = new this.construct(attrs);
     } else {
-      retval = result;
+      throw new Error('Constructor function expected');
+    }
+
+    for (var i = 0; i < this.callbacks.length; i++) {
+      this.callbacks[i](retval, this.options(options));
+    }
+    return retval;
+  },
+
+  /**
+   * Create objects by getting values for all attributes and passing
+   * the result to the 'create' method of the constructor object
+   * passed in via Factory.define().
+   *
+   * Throws an error if .create() is not defined on constructor.
+   *
+   * @param {object} attributes
+   * @param {object} options
+   * @return {Promise}
+   */
+  create: function(attributes, options) {
+    var attrs = this.attributes(attributes, options);
+    var retval = null;
+
+    if (this.construct && typeof this.construct.create === 'function') {
+      retval = this.construct.create(attrs);
+    } else {
+      throw new Error('Create function expected');
     }
 
     for (var i = 0; i < this.callbacks.length; i++) {
