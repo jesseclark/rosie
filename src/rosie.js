@@ -418,6 +418,20 @@ Factory.build = function(name, attributes, options) {
 };
 
 /**
+ * Locates a factory by name and calls #create on it.
+ *
+ * @param {string} name
+ * @param {object} attributes
+ * @param {object} options
+ * @return {*}
+ */
+Factory.create = function(name, attributes, options) {
+  if (!this.factories[name])
+    throw new Error('The "' + name + '" factory is not defined.');
+  return this.factories[name].create(attributes, options);
+};
+
+/**
  * Builds a collection of objects using the named factory.
  *
  * @param {string} name
