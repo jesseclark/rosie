@@ -440,7 +440,7 @@ Factory.build = function(name, attributes, options) {
 Factory.create = function(name, attributes, options, callback) {
   if (!this.factories[name])
     throw new Error('The "' + name + '" factory is not defined.');
-  return this.factories[name].create(attributes, options, create);
+  return this.factories[name].create(attributes, options, create, callback);
 };
 
 /**
