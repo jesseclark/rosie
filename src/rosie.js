@@ -311,19 +311,31 @@ Factory.prototype = {
    * @param {object} options
    * @return {Promise}
    */
-  create: function(attributes, options) {
+  create: function(attributes, options, callback) {
+
     var attrs = this.attributes(attributes, options);
     var retval = null;
 
     if (this.construct && typeof this.construct.create === 'function') {
-      retval = this.construct.create(attrs);
+
+      if (callback) {
+
+        return this.construct.create(attrs, callback);
+
+      } else {
+
+        retval = this.construct.create(attrs);
+      }
+
     } else {
+
       throw new Error('Create function expected');
     }
 
     for (var i = 0; i < this.callbacks.length; i++) {
       this.callbacks[i](retval, this.options(options));
     }
+
     return retval;
   },
 
@@ -425,10 +437,10 @@ Factory.build = function(name, attributes, options) {
  * @param {object} options
  * @return {*}
  */
-Factory.create = function(name, attributes, options) {
+Factory.create = function(name, attributes, options, callback) {
   if (!this.factories[name])
     throw new Error('The "' + name + '" factory is not defined.');
-  return this.factories[name].create(attributes, options);
+  return this.factories[name].create(attributes, options, create);
 };
 
 /**
